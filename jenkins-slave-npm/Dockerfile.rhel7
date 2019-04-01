@@ -13,7 +13,7 @@ ENV CHROME_BIN=/bin/google-chrome
 
 USER root
 
-ADD google-chrome.repo /etc/yum.repos.d/
+ADD src/google-chrome.repo /etc/yum.repos.d/
 
 RUN INSTALL_PKGS="nss_wrapper redhat-lsb libXScrnSaver xdg-utils google-chrome-stable" && \
     yum install -y --setopt=tsflags=nodocs \
