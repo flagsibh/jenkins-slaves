@@ -9,23 +9,30 @@ LABEL com.redhat.component="jenkins-slave-nodejs-rhel7-docker" \
       io.k8s.description="The jenkins slave arachni image has the nodejs tools on top of the jenkins slave base image." \
       io.openshift.tags="openshift,jenkins,slave,nodejs"
 
-ENV CHROME_BIN=/bin/google-chrome
-
 USER root
+
+ENV NODEJS_VERSION=10 \
+    NPM_CONFIG_PREFIX=$HOME/.npm-global \
+    PATH=$HOME/node_modules/.bin/:$HOME/.npm-global/bin/:$PATH \
+    CHROME_BIN=/bin/google-chrome
 
 ADD src/google-chrome.repo /etc/yum.repos.d/
 
-RUN INSTALL_PKGS="nss_wrapper redhat-lsb libXScrnSaver xdg-utils google-chrome-stable" && \
+RUN INSTALL_PKGS="nss_wrapper redhat-lsb libXScrnSaver xdg-utils google-chrome-stable rh-nodejs${NODEJS_VERSION} rh-nodejs${NODEJS_VERSION}-nodejs-nodemon make gcc-c++" && \
+    ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     yum install -y --setopt=tsflags=nodocs \
       --disablerepo=* \
       --enablerepo=rhel-7-server-rpms \
       --enablerepo=rhel-7-server-optional-rpms \
       --enablerepo=rhel-7-server-extras-rpms \
+      --enablerepo=rhel-8-server-optional-rpms \
       --enablerepo=google-chrome \
       $INSTALL_PKGS && \
     yum clean all -y && \
-    rm -rf /var/cache/yum
+    rm -rf /var/cache/yum && \
+    npm install --unsafe-perm -g  @angular/cli@latest htmlhint stylelint && \
+    chown root:root /home/jenkins -R && \
+    chmod 775 /home/jenkins/.config -R && \
+    chmod 775 /home/jenkins/.npm -R
 
 USER 1001
-
-RUN  npm install --unsafe-perm -g  @angular/cli@latest htmlhint stylelint
