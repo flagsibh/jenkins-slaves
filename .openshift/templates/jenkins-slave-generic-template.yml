@@ -29,7 +29,13 @@ objects:
         kind: ImageStreamTag
         name: "${NAME}:${SLAVE_IMAGE_TAG}"
     postCommit: {}
-    resources: {}
+    resources:
+      requests:
+        cpu: 100m
+        memory: 300Mi
+      limits:
+        cpu: 500m
+        memory: 800Mi
     runPolicy: Serial
     source:
       contextDir: "${SOURCE_CONTEXT_DIR}"
